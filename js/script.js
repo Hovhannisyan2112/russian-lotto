@@ -35,6 +35,7 @@ let allNumbers = [];
 
 let checkClick = true;
 let checkWin = 0;
+let callNums;
 
 pushAllNumbers(allNumbers);
 pushRowNumbers();
@@ -56,7 +57,7 @@ function playGame () {
 
 function stopGame () {
     changeClick('none', 'inline-block');
-    checkClick = false;
+    clearInterval(callNums);
 }
 
 cardRow1.addEventListener('click', function(e) {
@@ -83,19 +84,17 @@ function newGame () {
 
 //// game play /////////////////////////////////////////////////////////
 function createNumber () {
-    let callNums = setInterval(() => {
-        rendCallingNumbers(callNums);
-        winShower(callNums);
+    callNums = setInterval(() => {
+        rendCallingNumbers();
+        winShower();
     }, 3 * 1000);
 }
 
-function rendCallingNumbers(interval) {
-    if (checkClick) {
-        if (checkWin !== 15) {
-            randNum.innerHTML = `<div>${callRandomNumber(allNumbers)}</div>`;
-        }
+function rendCallingNumbers() {
+    if (checkWin !== 15) {
+        randNum.innerHTML = `<div>${callRandomNumber(allNumbers)}</div>`;
         if (allNumbers.length === 0) {
-            clearInterval(interval);
+            clearInterval(callNums);
             setTimeout(() => {
                 gameOver.innerText = 'Game Over. You Lost!';
                 randNum.innerHTML = '';
@@ -103,14 +102,12 @@ function rendCallingNumbers(interval) {
                 changeClick('none', 'none');
             }, 4 * 1000)
         }
-    } else {
-        clearInterval(interval);
     }
 }
 
-function winShower (interval) {
+function winShower () {
     if (checkWin === 15) {
-        clearInterval(interval);
+        clearInterval(callNums);
         gameOver.innerText = 'You Win!';
         randNum.innerHTML = '';
         clickAgain.style.display = 'inline-block';
