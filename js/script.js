@@ -33,7 +33,6 @@ let emptyIndexForLast = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 let allNumbers = [];
 
-let checkClick = true;
 let checkWin = 0;
 let callNums;
 
@@ -52,7 +51,6 @@ emptyAreas(row3, emptyIndexForLast);
 function playGame () {
     createNumber();
     changeClick('inline-block', 'none');
-    checkClick = true;
 }
 
 function stopGame () {
@@ -134,7 +132,6 @@ function CreateNewGame () {
 
     allNumbers = [];
     checkWin = 0;
-    checkClick = true;
 
     pushAllNumbers(allNumbers);
     pushRowNumbers();
