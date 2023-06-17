@@ -33,20 +33,37 @@ let emptyIndexForLast = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 let allNumbers = [];
 
+let cardRows = [
+    [],
+    [],
+    []
+];
+
 let checkWin = 0;
 let callNums;
+let showGameOver;
+
+class CardLotto {
+    constructor (num, boolian) {
+        this.num = num;
+        this.check = boolian;
+    }
+}
 
 pushAllNumbers(allNumbers);
 pushRowNumbers();
 
-rendNums(row1);
-rendNums(row2);
-rendNums(row3);
+addRowNums(cardRows[0]);
+addRowNums(cardRows[1]);
+addRowNums(cardRows[2]);
 
-emptyAreas(row1, emptyIndex);
-emptyAreas(row2, emptyIndex);
-emptyAreas(row3, emptyIndexForLast);
+emptyAreas(cardRows[0], emptyIndex);
+emptyAreas(cardRows[1], emptyIndex);
+emptyAreas(cardRows[2], emptyIndexForLast);
 
+rendNums(row1, cardRows[0]);
+rendNums(row2, cardRows[1]);
+rendNums(row3, cardRows[2]);
 
 function playGame () {
     createNumber();
@@ -58,48 +75,50 @@ function stopGame () {
     clearInterval(callNums);
 }
 
-cardRow1.addEventListener('click', function(e) {
-    if (e.target !== e.currentTarget) {
-        closeNumber(e.target);
+for (let i = 0; i < 9; i++) {
+    row1[i].onclick = function() {
+        closeNumber(row1[i], cardRows[0][i]);
     }
-})
-
-cardRow2.addEventListener('click', function(e) {
-    if (e.target !== e.currentTarget) {
-        closeNumber(e.target);
+    
+    row2[i].onclick = function() {
+        closeNumber(row2[i], cardRows[1][i]);
     }
-})
-
-cardRow3.addEventListener('click', function(e) {
-    if (e.target !== e.currentTarget) {
-        closeNumber(e.target);
+    
+    row3[i].onclick = function() {
+        closeNumber(row3[i], cardRows[2][i]);
     }
-})
+}
 
 function newGame () {
+    clearInterval(callNums);
     CreateNewGame();
 }
 
 //// game play /////////////////////////////////////////////////////////
 function createNumber () {
+    clearInterval(callNums);
     callNums = setInterval(() => {
         rendCallingNumbers();
         winShower();
     }, 3 * 1000);
 }
 
-function rendCallingNumbers() {
-    if (checkWin !== 15) {
-        randNum.innerHTML = `<div>${callRandomNumber(allNumbers)}</div>`;
-        if (allNumbers.length === 0) {
-            clearInterval(callNums);
-            setTimeout(() => {
+function rendCallingNumbers () {
+    if (allNumbers.length === 0) {
+        clearInterval(callNums);
+        clearInterval(showGameOver);
+        showGameOver = setTimeout(() => {
+            if (checkWin !== 15) {
                 gameOver.innerText = 'Game Over. You Lost!';
                 randNum.innerHTML = '';
                 clickAgain.style.display = 'inline-block';
                 changeClick('none', 'none');
-            }, 4 * 1000)
-        }
+            } else {
+                winShower();
+            }
+        }, 4 * 1000);
+    } else {
+        randNum.innerHTML = `<div>${callRandomNumber(allNumbers)}</div>`;
     }
 }
 
@@ -114,10 +133,11 @@ function winShower () {
     }
 }
 
-function closeNumber (box) {
-    if (!(allNumbers.includes(+box.innerText)) && box.innerText !== '') {
-        box.innerHTML = `<div class="number-out"></div>`;
+function closeNumber (box, row) {
+    if (row.check === true) {
+        box.innerHTML = `<div class="number-out">${row.num}</div>`;
         checkWin++;
+        row.check = false;
     }
 }
 
@@ -127,22 +147,44 @@ function changeClick (on, off) {
 }
 
 function CreateNewGame () {
+    cardColumn = [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ];
+
     emptyIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     emptyIndexForLast = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
     allNumbers = [];
     checkWin = 0;
 
+    cardRows = [
+        [],
+        [],
+        []
+    ];
+
     pushAllNumbers(allNumbers);
     pushRowNumbers();
 
-    rendNums(row1);
-    rendNums(row2);
-    rendNums(row3);
+    addRowNums(cardRows[0]);
+    addRowNums(cardRows[1]);
+    addRowNums(cardRows[2]);
 
-    emptyAreas(row1, emptyIndex);
-    emptyAreas(row2, emptyIndex);
-    emptyAreas(row3, emptyIndexForLast);
+    emptyAreas(cardRows[0], emptyIndex);
+    emptyAreas(cardRows[1], emptyIndex);
+    emptyAreas(cardRows[2], emptyIndexForLast);
+
+    rendNums(row1, cardRows[0]);
+    rendNums(row2, cardRows[1]);
+    rendNums(row3, cardRows[2]);
 
     clickAgain.style.display = 'none';
     clickPlay.style.display = 'inline-block';
@@ -172,7 +214,7 @@ function randomindex (row) {
     return randomindex;
 }
 
-function rendNums (row) {
+function addRowNums (row) {
     let randomNum1 = cardColumn[0].splice(randomindex(cardColumn[0]), 1)[0];
     let randomNum2 = cardColumn[1].splice(randomindex(cardColumn[1]), 1)[0];
     let randomNum3 = cardColumn[2].splice(randomindex(cardColumn[2]), 1)[0];
@@ -196,7 +238,7 @@ function rendNums (row) {
     ]
 
     for (let i = 0; i < randNumsArr.length; i++) {
-        row[i].innerText = randNumsArr[i];
+        row.push(new CardLotto(randNumsArr[i], false));
     }
 }
 
@@ -204,7 +246,17 @@ function emptyAreas (row, empty) {
     for (let i = 0; i < 4; i++) {
         let index = Math.floor(Math.random() * empty.length);
         let findEmptyIndex = empty.splice(index, 1)[0];
-        row[findEmptyIndex].innerText = '';
+        row[findEmptyIndex].num = undefined;
+    }
+}
+
+function rendNums (row, rowArr) {
+    for (let i = 0; i < row.length; i++) {
+        if (rowArr[i].num !== undefined) {
+            row[i].innerText = rowArr[i].num;
+        } else {
+            row[i].innerText = '';
+        }
     }
 }
 
@@ -216,7 +268,18 @@ function pushAllNumbers (arr) {
 
 function callRandomNumber (arr) {
     let index = Math.floor(Math.random() * arr.length);
-    let randomNum = arr.splice(index, 1);
+    let randomNum = arr.splice(index, 1)[0];
     callingNumbers.innerHTML += `<div>${randomNum}</div>`;
+    checkNumber(cardRows[0], randomNum);
+    checkNumber(cardRows[1], randomNum);
+    checkNumber(cardRows[2], randomNum);
     return randomNum;
+}
+
+function checkNumber (cardRow, randomNum) {
+    cardRow.forEach(e => {
+        if(e.num === randomNum) {
+            e.check = true;
+        }
+    });
 }
